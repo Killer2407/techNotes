@@ -2,9 +2,22 @@ const express = require('express')
 const app = express()
 const path = require('path')
 const PORT = process.env.PORT || 4000
+const {logger} = require('./middleware/logger.js')
+const errorHandler = require('./middleware/errorHandler')
+const cookieParser = require('cookie-parser')
+const corsOption = require('./config/corsOptions')
+const cors = require('cors')
 
-//Where to find css and images on the server.
-app.use('/', express.static(path.join(__dirname, '/public')))
+app.use(logger)
+
+app.use(cors(corsOption))
+
+app.use(express.json())
+
+app.use(cookieParser())
+
+//Where to find css and images on the server Middleware express.static
+app.use('/', express.static(path.join(__dirname, 'public'))) 
 
 app.use('/', require('./routes/root'))
 
@@ -18,4 +31,8 @@ app.all('*', (req, res) => {
         res.type=('txt').send('404 Not Found')
     }
 })
+
+app.use(errorHandler)
+
 app.listen(PORT, () => console.log(`Server running on ${PORT}`))
+
